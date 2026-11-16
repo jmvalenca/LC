@@ -1,0 +1,95 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.25.2",
+    "script_metadata_hash": null
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "bbfbaa077ba1a6e3ecbd2f122538a255",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "5e373b040ce709428fd82fe8f47899d4",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h1 id=\"chcs-para-a-multiplicacao-de-inteiros-com-erros-overflow-a-priori-bitvec-de-6-bits-z3-spacer\">CHC's para a \"Multiplica\u00e7\u00e3o de inteiros com erros\" \u2014 overflow a priori, <code>BitVec</code> de 6 bits (z3 / Spacer)</h1>\n<span class=\"paragraph\">Este notebook codifica em <strong>z3</strong> os dois sistemas de CHC's do Cap\u00edtulo 4 (2\u00aa parte),\nsec\u00e7\u00e3o <em>\"Verifica\u00e7\u00e3o da corre\u00e7\u00e3o parcial do programa Multiplica\u00e7\u00e3o de Inteiros com Erros\"</em>,\ncom as vari\u00e1veis representadas como <strong>bit-vectors sem sinal de <marimo-tex class=\"arithmatex\">||(N = 6||)</marimo-tex> bits</strong> e\n<marimo-tex class=\"arithmatex\">||(L = 2^{6}-1 = 63||)</marimo-tex>, numa <strong>variante em que o overflow \u00e9 testado a priori</strong>:\n<code>do</code> s\u00f3 passa o controlo a <code>even</code>/<code>odd</code> se o passo seguinte n\u00e3o exceder <marimo-tex class=\"arithmatex\">||(L||)</marimo-tex>; caso contr\u00e1rio\no controlo vai diretamente de <code>do</code> para <code>error</code>.</span>\n<table>\n<thead>\n<tr>\n<th>ramo</th>\n<th>guarda</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>(do,even)</code></td>\n<td><marimo-tex class=\"arithmatex\">||(y\\neq 0 \\land \\mathit{even}(y) \\land 2x \\le L||)</marimo-tex></td>\n</tr>\n<tr>\n<td><code>(do,odd)</code></td>\n<td><marimo-tex class=\"arithmatex\">||(y\\neq 0 \\land \\mathit{odd}(y) \\land x + z \\le L||)</marimo-tex></td>\n</tr>\n<tr>\n<td><code>(do,error)</code> <em>(novo)</em></td>\n<td><marimo-tex class=\"arithmatex\">||(y\\neq 0 \\land \\big((\\mathit{even}(y) \\land 2x &gt; L) \\lor (\\mathit{odd}(y) \\land x+z &gt; L)\\big)||)</marimo-tex></td>\n</tr>\n<tr>\n<td><code>(even,do)</code>, <code>(odd,do)</code></td>\n<td><marimo-tex class=\"arithmatex\">||(\\mathtt{True}||)</marimo-tex></td>\n</tr>\n<tr>\n<td><code>(do,stop)</code></td>\n<td><marimo-tex class=\"arithmatex\">||(y = 0||)</marimo-tex></td>\n</tr>\n</tbody>\n</table>\n<span class=\"paragraph\">Os ramos <code>(even,error)</code> e <code>(odd,error)</code> desaparecem: ficam <strong>7 ramos</strong>. Assim nenhuma vari\u00e1vel\nchega a exceder <marimo-tex class=\"arithmatex\">||(L||)</marimo-tex> (os valores ficam sempre represent\u00e1veis), ao contr\u00e1rio da vers\u00e3o\noriginal, onde o overflow s\u00f3 \u00e9 detetado depois de acontecer.</span>\n<ul>\n<li><strong>orientado \u00e0s pr\u00e9-condi\u00e7\u00f5es</strong> \u2014 inc\u00f3gnitas <marimo-tex class=\"arithmatex\">||(P_\\ell||)</marimo-tex>, uma CHC por ramo <marimo-tex class=\"arithmatex\">||((\\ell,\\ell')||)</marimo-tex>:\n  <marimo-tex class=\"arithmatex\">||(\\;\\models\\;\\mathsf{T}_\\ell(\\mathsf{X},\\mathsf{X}')\\land \\mathsf{sw}_{\\ell,\\ell'}(\\mathsf{X}')\\land P_\\ell(\\mathsf{X}) \\to P_{\\ell'}(\\mathsf{X}')||)</marimo-tex></li>\n<li><strong>orientado \u00e0s p\u00f3s-condi\u00e7\u00f5es</strong> \u2014 inc\u00f3gnitas <marimo-tex class=\"arithmatex\">||(Q_\\ell||)</marimo-tex>, uma CHC por ramo <marimo-tex class=\"arithmatex\">||((\\ell',\\ell)||)</marimo-tex>:\n  <marimo-tex class=\"arithmatex\">||(\\;\\models\\;\\mathsf{T}_\\ell(\\mathsf{X},\\mathsf{X}')\\land \\mathsf{sw}_{\\ell',\\ell}(\\mathsf{X})\\land Q_{\\ell'}(\\mathsf{X}) \\to Q_{\\ell}(\\mathsf{X}')||)</marimo-tex></li>\n</ul>\n<span class=\"paragraph\">mais as CHC's de <code>system</code>, <code>stop</code> (<marimo-tex class=\"arithmatex\">||(\\neg\\varphi\\land\\cdot\\to\\mathtt{False}||)</marimo-tex>) e <code>error</code> (<marimo-tex class=\"arithmatex\">||(\\cdot\\to\\mathtt{False}||)</marimo-tex>).\nPelo texto, <em>existe modelo</em> <marimo-tex class=\"arithmatex\">||(\\iff||)</marimo-tex> o CFA \u00e9 <strong>parcialmente correto e seguro</strong>.</span>\n<span class=\"paragraph\"><strong>Codifica\u00e7\u00e3o em <code>BitVec</code>.</strong> Todas as vari\u00e1veis <code>a, b, x, y, z</code> s\u00e3o <code>BitVec(\u00b7, 6)</code> e todas as\ncompara\u00e7\u00f5es s\u00e3o <strong>sem sinal</strong> (<code>ULE</code>, <code>UGT</code>). Como o overflow \u00e9 testado <em>antes</em> de cada passo,\nos valores calculados ficam sempre em <marimo-tex class=\"arithmatex\">||([0, L]||)</marimo-tex>: nenhuma opera\u00e7\u00e3o \"d\u00e1 a volta\", e os 6 bits\nrepresentam exatamente os inteiros do programa.</span>\n<ul>\n<li><code>even(y)</code> \u00e9 o bit menos significativo de <code>y</code> a zero; <code>y/2</code> \u00e9 <code>LShR(y, 1)</code>; <code>2x</code> \u00e9 <code>x &lt;&lt; 1</code>.</li>\n<li>Os testes de overflow evitam calcular o valor que excederia <marimo-tex class=\"arithmatex\">||(L||)</marimo-tex>:\n  <marimo-tex class=\"arithmatex\">||(2x &gt; L \\iff x &gt; \\lfloor L/2\\rfloor||)</marimo-tex> e <marimo-tex class=\"arithmatex\">||(x + z &gt; L \\iff x &gt; L - z||)</marimo-tex> (com <marimo-tex class=\"arithmatex\">||(z \\le L||)</marimo-tex>, <marimo-tex class=\"arithmatex\">||(L - z||)</marimo-tex> n\u00e3o d\u00e1 a volta).</li>\n<li>O <code>havoc(a,b)</code> gera um valor qualquer de 6 bits, isto \u00e9, <marimo-tex class=\"arithmatex\">||(0 \\le a, b \\le L||)</marimo-tex> fica impl\u00edcito.</li>\n<li>Em <marimo-tex class=\"arithmatex\">||(\\varphi \\equiv z = a\\cdot b||)</marimo-tex>, na pr\u00e9-condi\u00e7\u00e3o <marimo-tex class=\"arithmatex\">||(a\\cdot b \\le L||)</marimo-tex> e no invariante\n  <marimo-tex class=\"arithmatex\">||(z + x\\cdot y = a\\cdot b||)</marimo-tex>, os produtos s\u00e3o calculados com <marimo-tex class=\"arithmatex\">||(2N+1 = 13||)</marimo-tex> bits (<code>ZeroExt</code>):\n  s\u00e3o os produtos inteiros, sem perda.</li>\n<li><strong>Sem mais restri\u00e7\u00f5es nas entradas</strong>, o Spacer encontra rapidamente a viola\u00e7\u00e3o (<strong>unsat</strong>), e o\n  notebook mostra um contra-exemplo concreto.</li>\n<li><strong>Com a pr\u00e9-condi\u00e7\u00e3o adicional</strong> <marimo-tex class=\"arithmatex\">||(a\\cdot b \\le L||)</marimo-tex>, o sistema tem modelo, mas o\n  Spacer n\u00e3o o encontra dentro do tempo limite, mesmo com s\u00f3 6 bits: o invariante necess\u00e1rio,\n  <marimo-tex class=\"arithmatex\">||(z + x\\cdot y = a\\cdot b||)</marimo-tex>, envolve multiplica\u00e7\u00f5es. Por isso o notebook <strong>verifica um modelo candidato</strong>:\n  d\u00e1 interpreta\u00e7\u00f5es expl\u00edcitas \u00e0s vari\u00e1veis de predicado e prova com z3 que cada CHC \u00e9 v\u00e1lida\n  (com bit-vectors esta prova \u00e9 decid\u00edvel e demora d\u00e9cimas de segundo).</li>\n</ul></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "8a287cd2c6ef151d3380353d6a86c268",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "7c98363b10e5503888ecc96216d366ec",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "24b57a7015036093eb644e58a70c965d",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "9554fbb6763ad836c09193a4bd921d7b",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "d667acfacd7f0147f2526184c538f6da",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "30c985de03251b789eaea092206624de",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "0fd27923df94ffb7609edbc04253284b",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "73e5625798a0db7b56ca14b42a549658",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "Kclp",
+      "code_hash": "c4f59a620584ff9f1d3190f42df91f5c",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "585a1a1e3d4e43ae6311dde8d6d03d97",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"resultados-de-referencia-bitvec-de-6-bits-l-63-overflow-testado-a-priori\">Resultados de refer\u00eancia (BitVec de 6 bits, L = 63, overflow testado a priori)</h2>\n<table>\n<thead>\n<tr>\n<th>entradas</th>\n<th>pr\u00e9-condi\u00e7\u00f5es</th>\n<th>p\u00f3s-condi\u00e7\u00f5es</th>\n<th>interpreta\u00e7\u00e3o</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>havoc(a,b)</code>: qualquer valor de 6 bits, <code>0 \u2264 a, b \u2264 63</code></td>\n<td>Spacer: <strong>unsat</strong> (0,01 s)</td>\n<td>Spacer: <strong>unsat</strong> (0,01 s)</td>\n<td><code>error</code> \u00e9 alcan\u00e7\u00e1vel pelo ramo <code>(do,error)</code>, por ex. <code>a = 53, b = 52</code> (<code>b</code> par e <code>2a &gt; 63</code>); o programa <strong>n\u00e3o</strong> \u00e9 parcialmente correto e seguro</td>\n</tr>\n<tr>\n<td>idem, e ainda <code>a\u00b7b \u2264 L</code></td>\n<td>modelo verificado (10 CHC's v\u00e1lidas, \u22480,1 s cada)</td>\n<td>modelo verificado (10 CHC's v\u00e1lidas, \u22480,1 s cada)</td>\n<td><strong>parcialmente correto e seguro</strong>; o invariante-chave \u00e9 <code>z + x\u00b7y = a\u00b7b</code></td>\n</tr>\n</tbody>\n</table>\n<span class=\"paragraph\">Com a restri\u00e7\u00e3o, o Spacer devolve <code>unknown</code> ao fim de 60 s (testado com v\u00e1rias sementes), apesar\nde o espa\u00e7o de estados ser finito (<marimo-tex class=\"arithmatex\">||(2^{30}||)</marimo-tex> estados). A exist\u00eancia de modelo fica provada pela\nverifica\u00e7\u00e3o expl\u00edcita do modelo candidato. Essa verifica\u00e7\u00e3o n\u00e3o \u00e9 v\u00e1cua: se se retirar o\ninvariante <code>z + x\u00b7y = a\u00b7b</code> do modelo de <code>do</code>, as CHC's dos ramos <code>(do,even)</code>, <code>(do,odd)</code>,\n<code>(do,stop)</code> e <code>(do,error)</code> deixam de ser v\u00e1lidas.</span>\n<span class=\"paragraph\"><strong>Porque \u00e9 que o modelo funciona.</strong> Em <code>do</code> tem-se <code>z + x\u00b7y = a\u00b7b \u2264 L</code>, com <code>x, y, z \u2265 0</code>.\nSe <code>y</code> \u00e9 par e n\u00e3o nulo, <code>y \u2265 2</code>, logo <code>2x \u2264 x\u00b7y \u2264 L</code>; se <code>y</code> \u00e9 \u00edmpar, <code>y \u2265 1</code>, logo\n<code>x + z \u2264 x\u00b7y + z = a\u00b7b \u2264 L</code>. Portanto a guarda de <code>(do,error)</code> \u00e9 sempre falsa e <code>error</code> nunca\n\u00e9 alcan\u00e7ado. Em <code>stop</code>, <code>y = 0</code> d\u00e1 <code>z = a\u00b7b</code>, que \u00e9 <code>\u03c6</code>.</span>\n<span class=\"paragraph\"><strong>Diferen\u00e7a em rela\u00e7\u00e3o \u00e0 vers\u00e3o original.</strong> Na vers\u00e3o original o teste \u00e9 feito <em>a posteriori</em>\n(<code>(even,error)</code>, <code>(odd,error)</code> com <code>x &gt; L \u2228 z &gt; L</code>), o que pressup\u00f5e que os valores acima de\n<code>L</code> existem, isto \u00e9, inteiros matem\u00e1ticos. Aqui o teste \u00e9 feito <em>a priori</em>, e por isso todos os\nvalores calculados ficam em <code>[0, L]</code>, e \u00e9 isso que permite usar bit-vectors de exatamente 6 bits,\ncomo num programa real com inteiros de 6 bits sem sinal.\nOs contra-exemplos tamb\u00e9m mudam: a viola\u00e7\u00e3o \u00e9 agora <code>system \u2192 do \u2192 error</code>, num passo a menos.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    }
+  ]
+}
