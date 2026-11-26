@@ -21,13 +21,13 @@ def _(mo):
     Exemplo «Problema do Caixeiro Viajante» do *Capítulo 2: Programação com Restrições*.
 
     Com $H_j \in \{0,1\}$ ($H_j = 1$ sse o ramo $j$ pertence ao ciclo) e
-    $\delta(S)=\{(u,v)\in\mathcal{E} \mid u\in S,\ v\notin S\}$:
+    $\delta(A)=\{(u,v)\in\mathcal{E} \mid u\in A,\ v\notin A\}$:
 
     $$
     \begin{aligned}
     \min_{H}\quad & \textstyle\sum_{j\in\mathcal{E}} c_j\,H_j\\
     \text{s.a.}\quad & \textstyle\sum_{j\in\delta(\{a\})} H_j = 2 && \forall\, a\in\mathcal{V}\\
-    & \textstyle\sum_{j\in\delta(S)} H_j \ge 2 && \forall\, \emptyset\ne S\subsetneq\mathcal{V}\\
+    & \textstyle\sum_{j\in\delta(A)} H_j \ge 2 && \forall\, \emptyset\ne A\subsetneq\mathcal{V}\\
     & H\in\{0,1\}^{m}
     \end{aligned}
     $$
@@ -36,8 +36,8 @@ def _(mo):
     Usa-se **geração preguiçosa de restrições**:
 
     1. resolve-se o modelo só com as restrições de grau (CP-SAT);
-    2. se a solução tem vários subciclos, cada subciclo $S$ dá uma restrição de corte violada
-       ($\sum_{j\in\delta(S)} H_j = 0$), que se acrescenta ao modelo;
+    2. se a solução tem vários subciclos, o conjunto $A$ dos nodos de cada subciclo dá uma restrição de corte violada
+       ($\sum_{j\in\delta(A)} H_j = 0$), que se acrescenta ao modelo;
     3. repete-se até a solução ser um único ciclo — que é então um ciclo Hamiltoniano ótimo.
 
     Para verificar, o mesmo problema é resolvido com a restrição global `AddCircuit` do CP-SAT.
@@ -85,9 +85,9 @@ def _(custos_ui, grafo_ui, n_ui, np, seed_ui):
     n = len(nomes)
     m = len(E)
 
-    def delta(S):
-        """Índices dos ramos com exatamente um extremo em S."""
-        return [j for j, (u, v) in enumerate(E) if (u in S) != (v in S)]
+    def delta(A):
+        """Índices dos ramos com exatamente um extremo em A."""
+        return [j for j, (u, v) in enumerate(E) if (u in A) != (v in A)]
     return E, custo, delta, m, n, nomes, pos
 
 
@@ -116,15 +116,15 @@ def _(E, cp_model, custo, delta, m, n):
         return comps
 
     def tsp_preguicoso(max_iter=200):
-        cortes = []          # conjuntos S cujas restrições de corte já foram acrescentadas
+        cortes = []          # conjuntos A cujas restrições de corte já foram acrescentadas
         historico = []       # (iteração, custo, nº de subciclos)
         for it in range(1, max_iter + 1):
             mdl = cp_model.CpModel()
             H = [mdl.NewBoolVar(f"H{j}") for j in range(m)]
             for a in range(n):
                 mdl.Add(sum(H[j] for j in delta({a})) == 2)
-            for S in cortes:
-                mdl.Add(sum(H[j] for j in delta(S)) >= 2)
+            for A in cortes:
+                mdl.Add(sum(H[j] for j in delta(A)) >= 2)
             mdl.Minimize(sum(c * h for c, h in zip(custo, H)))
             s = cp_model.CpSolver()
             s.parameters.max_time_in_seconds = 30
