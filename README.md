@@ -26,5 +26,4 @@ Ainda sem notebooks.
 - `CHC_multiplicacao.xlsx` — tabela de apoio ao exemplo da multiplicação
 
 ### `cap5/` — Capítulo 5: Sistemas Híbridos
-- `tp4_p1_pancreas.py` — TP4, problema 1: pâncreas artificial (autómato híbrido)
-- `tp4_p2_relogios.py` — TP4, problema 2: sincronização de relógios numa rede de sensores
+Ainda sem notebooks.
