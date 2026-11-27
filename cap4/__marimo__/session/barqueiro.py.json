@@ -1,0 +1,217 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.25.2",
+    "script_metadata_hash": null
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "46ff9ad484192fe8fdad4d6b8e426f4b",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "a22a6901e2c3e7931835e1e1c7e4fbcb",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"o-problema-do-barqueiro-lobo-cordeiro-e-couve\">O problema do barqueiro: lobo, cordeiro e couve</h2>\n<span class=\"paragraph\">Um barqueiro est\u00e1 na margem esquerda de um rio com um <strong>lobo</strong>, um\n<strong>cordeiro</strong> e uma <strong>couve</strong>. O barco leva o barqueiro e, no m\u00e1ximo,\nmais um item. Sem o barqueiro presente:</span>\n<ul>\n<li>o lobo come o cordeiro;</li>\n<li>o cordeiro come a couve.</li>\n</ul>\n<span class=\"paragraph\">Pretende-se levar tudo para a margem direita.</span>\n<h3 id=\"modelacao-como-sistema-de-transicao-sfots\">Modela\u00e7\u00e3o como sistema de transi\u00e7\u00e3o (SFOTS)</h3>\n<ul>\n<li><strong>Estado:</strong> quatro vari\u00e1veis booleanas <marimo-tex class=\"arithmatex\">||(b, l, c, v||)</marimo-tex> (barqueiro, lobo,\n  cordeiro, couve). <code>False</code> \u00e9 a margem esquerda e <code>True</code> a direita.\n  S\u00e3o <marimo-tex class=\"arithmatex\">||(2^4 = 16||)</marimo-tex> estados.</li>\n<li><strong>Estado inicial:</strong> <marimo-tex class=\"arithmatex\">||(\\neg b \\wedge \\neg l \\wedge \\neg c \\wedge \\neg v||)</marimo-tex>.</li>\n<li><strong>Transi\u00e7\u00e3o:</strong> o barqueiro muda sempre de margem (<marimo-tex class=\"arithmatex\">||(b' = \\neg b||)</marimo-tex>). Cada\n  item ou fica onde est\u00e1, ou estava com o barqueiro e acompanha-o.\n  Muda no m\u00e1ximo um item.</li>\n<li><strong>Estados seguros:</strong>\n  <marimo-tex class=\"arithmatex\">||(\\neg(l = c \\wedge c \\neq b) \\wedge \\neg(c = v \\wedge c \\neq b)||)</marimo-tex>.</li>\n<li><strong>Objetivo:</strong> <marimo-tex class=\"arithmatex\">||(b \\wedge l \\wedge c \\wedge v||)</marimo-tex>.</li>\n</ul>\n<span class=\"paragraph\">Procurar uma solu\u00e7\u00e3o \u00e9 procurar um caminho, s\u00f3 por estados seguros,\ndo estado inicial at\u00e9 ao objetivo. Se o objetivo for tratado como\n\"estado de erro\", a solu\u00e7\u00e3o \u00e9 o <strong>contraexemplo</strong> que um verificador\nde modelos encontra.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "ef27073ddc83c30f91015c8746011033",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "b9db1aab95bf5d9067ac80f41b63fbea",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h3 id=\"bounded-model-checking\">Bounded Model Checking</h3>\n<span class=\"paragraph\">Para <marimo-tex class=\"arithmatex\">||(k = 0, 1, 2, \\dots||)</marimo-tex> desenrola-se a transi\u00e7\u00e3o <marimo-tex class=\"arithmatex\">||(k||)</marimo-tex> vezes e\npergunta-se ao Z3 se</span>\n<marimo-tex class=\"arithmatex\">||[\n\\mathsf{init}(s_0) \\wedge \\bigwedge_{j&lt;k} \\mathsf{trans}(s_j, s_{j+1})\n\\wedge \\bigwedge_{j \\le k} \\mathsf{seguro}(s_j)\n\\wedge \\mathsf{objetivo}(s_k)\n||]</marimo-tex><span class=\"paragraph\">\u00e9 satisfaz\u00edvel. O primeiro <marimo-tex class=\"arithmatex\">||(k||)</marimo-tex> com resposta <code>sat</code> \u00e9 o comprimento da\nsolu\u00e7\u00e3o m\u00ednima. Cada resposta <code>unsat</code> anterior prova que n\u00e3o h\u00e1\nsolu\u00e7\u00e3o mais curta.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "c80ddf2f69ef9a3cd854a1cda9a17d97",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "6067afb736f9356ac2532435fcf7a4e3",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><table>\n<thead>\n<tr>\n<th>k</th>\n<th>resultado</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>0</td>\n<td><code>unsat</code></td>\n</tr>\n<tr>\n<td>1</td>\n<td><code>unsat</code></td>\n</tr>\n<tr>\n<td>2</td>\n<td><code>unsat</code></td>\n</tr>\n<tr>\n<td>3</td>\n<td><code>unsat</code></td>\n</tr>\n<tr>\n<td>4</td>\n<td><code>unsat</code></td>\n</tr>\n<tr>\n<td>5</td>\n<td><code>unsat</code></td>\n</tr>\n<tr>\n<td>6</td>\n<td><code>unsat</code></td>\n</tr>\n<tr>\n<td>7</td>\n<td><code>sat</code></td>\n</tr>\n</tbody>\n</table>\n<span class=\"paragraph\"><strong>Solu\u00e7\u00e3o m\u00ednima: 7 travessias.</strong></span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "104e00c689fddae047b77890a5c8f6a2",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "0f88666755f6c17944cd48b1e3cf167e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">H\u00e1 <strong>2</strong> solu\u00e7\u00f5es de comprimento 7:</span>\n<span class=\"paragraph\"><strong>Solu\u00e7\u00e3o 1</strong></span>\n<ol>\n<li>leva o cordeiro \u2192 direita</li>\n<li>volta sozinho \u2190 esquerda</li>\n<li>leva o couve \u2192 direita</li>\n<li>leva o cordeiro \u2190 esquerda</li>\n<li>leva o lobo \u2192 direita</li>\n<li>volta sozinho \u2190 esquerda</li>\n<li>leva o cordeiro \u2192 direita</li>\n</ol>\n<span class=\"paragraph\"><strong>Solu\u00e7\u00e3o 2</strong></span>\n<ol>\n<li>leva o cordeiro \u2192 direita</li>\n<li>volta sozinho \u2190 esquerda</li>\n<li>leva o lobo \u2192 direita</li>\n<li>leva o cordeiro \u2190 esquerda</li>\n<li>leva o couve \u2192 direita</li>\n<li>volta sozinho \u2190 esquerda</li>\n<li>leva o cordeiro \u2192 direita</li>\n</ol></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "b344c21fe9f166581bf8d3fe55557763",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='BYtC-0' random-id='377c829e-0b6f-a8ac-e4af-47b22f7133cd'><marimo-dropdown data-initial-value='[&quot;Solu\u00e7\u00e3o 1&quot;]' data-label='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003eSolu\u00e7\u00e3o&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-options='[&quot;Solu\u00e7\u00e3o 1&quot;,&quot;Solu\u00e7\u00e3o 2&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false' data-disabled='false'></marimo-dropdown></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "d2928a7b01a9d68faf201e7fc4d04990",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><span class=\"markdown prose dark:prose-invert contents\"><h3 id=\"visualizacao-solucao-1\">Visualiza\u00e7\u00e3o: solu\u00e7\u00e3o 1</h3></span><marimo-ui-element object-id='RGSE-0' random-id='56d590c5-356c-509a-816f-420646d80024'><marimo-slider data-initial-value='0' data-label='&quot;&#92;u003cspan class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&#92;u003e&#92;u003cspan class=&#92;&quot;paragraph&#92;&quot;&#92;u003ePasso&#92;u003c/span&#92;u003e&#92;u003c/span&#92;u003e&quot;' data-start='0' data-stop='7' data-steps='[]' data-debounce='false' data-disabled='false' data-orientation='&quot;horizontal&quot;' data-show-value='true' data-include-input='false' data-full-width='false'></marimo-slider></marimo-ui-element></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Kclp",
+      "code_hash": "f308639668543094fac4708f4794b1c9",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><em>leva o cordeiro \u2190 esquerda</em></span>\n<table>\n<thead>\n<tr>\n<th style=\"text-align: center;\">margem esquerda</th>\n<th style=\"text-align: center;\">rio</th>\n<th style=\"text-align: center;\">margem direita</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td style=\"text-align: center;\">barqueiro, lobo, cordeiro</td>\n<td style=\"text-align: center;\">\u2190 barco</td>\n<td style=\"text-align: center;\">couve</td>\n</tr>\n</tbody>\n</table></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "b961596284e7e2807bd594e3852c96de",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h3 id=\"alcancabilidade-com-chcs-spacer\">Alcan\u00e7abilidade com CHC's (Spacer)</h3>\n<span class=\"paragraph\">A mesma pergunta pode p\u00f4r-se como um sistema de CHC's sobre um\npredicado inc\u00f3gnito <marimo-tex class=\"arithmatex\">||(\\mathit{Inv}(b,l,c,v)||)</marimo-tex>:</span>\n<ul>\n<li><marimo-tex class=\"arithmatex\">||(\\forall x \\cdot \\mathsf{init}(x) \\to \\mathit{Inv}(x)||)</marimo-tex></li>\n<li><marimo-tex class=\"arithmatex\">||(\\forall x, x' \\cdot \\mathit{Inv}(x) \\wedge \\mathsf{trans}(x,x')\n  \\wedge \\mathsf{seguro}(x') \\to \\mathit{Inv}(x')||)</marimo-tex></li>\n<li><marimo-tex class=\"arithmatex\">||(\\forall x \\cdot \\mathit{Inv}(x) \\wedge \\mathsf{objetivo}(x) \\to \\bot||)</marimo-tex></li>\n</ul>\n<span class=\"paragraph\">Se o sistema for <strong><code>sat</code></strong>, o modelo de <marimo-tex class=\"arithmatex\">||(\\mathit{Inv}||)</marimo-tex> \u00e9 um invariante\nindutivo que exclui o objetivo: o problema <strong>n\u00e3o tem solu\u00e7\u00e3o</strong>.\nSe for <strong><code>unsat</code></strong>, o objetivo \u00e9 alcan\u00e7\u00e1vel.</span>\n<span class=\"paragraph\">Comparam-se duas vers\u00f5es. Na original, o barqueiro pode trazer itens\nde volta. Na restringida, os itens s\u00f3 podem ir para a margem direita.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hstk",
+      "code_hash": "be153362dc58d1871beb9686c586081e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "nWHF",
+      "code_hash": "df507299c1d760ff1a848b4f5c34d5bd",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><table>\n<thead>\n<tr>\n<th>vers\u00e3o</th>\n<th>resultado</th>\n<th>conclus\u00e3o</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>pode trazer itens de volta</td>\n<td><code>unsat</code></td>\n<td>objetivo alcan\u00e7\u00e1vel</td>\n</tr>\n<tr>\n<td>s\u00f3 leva para a direita</td>\n<td><code>sat</code></td>\n<td>sem solu\u00e7\u00e3o</td>\n</tr>\n</tbody>\n</table>\n<span class=\"paragraph\">Invariante obtido para a vers\u00e3o restringida:</span>\n<div class=\"language-scdoc codehilite\"><pre><span></span><code>And(Or(Not(cordeiro_x), Not(lobo_x), Not(couve_x)),\n    Or(cordeiro_x, Not(lobo_x)),\n    Or(Not(couve_x), cordeiro_x),\n    Or(Not(cordeiro_x), Not(lobo_x), barqueiro_x),\n    Or(Not(cordeiro_x), barqueiro_x, Not(couve_x)))\n</code></pre></div></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "iLit",
+      "code_hash": "1f9778fa1025125291fc3d848782f17e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"verificacao-independente-pesquisa-em-largura-sem-z3\">Verifica\u00e7\u00e3o independente (pesquisa em largura, sem Z3)</h2>\n<span class=\"paragraph\">Com apenas 16 estados, uma pesquisa em largura expl\u00edcita confirma os\nresultados anteriores.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZHCJ",
+      "code_hash": "00d90bce1920424d435aa9dfae144818",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><ul>\n<li>estados seguros: <strong>10</strong> de 16</li>\n<li>comprimento m\u00ednimo (vers\u00e3o original): <strong>7</strong></li>\n<li>comprimento m\u00ednimo (vers\u00e3o restringida): <strong>None</strong></li>\n</ul></span>"
+          }
+        }
+      ],
+      "console": []
+    }
+  ]
+}
